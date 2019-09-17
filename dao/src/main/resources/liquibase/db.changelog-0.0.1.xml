@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="2019-08-16 15:39" author="Anton Alekseev">
+        <sql dbms="postgresql" endDelimiter=";">
+            CREATE SCHEMA photoalbum
+        </sql>
+    </changeSet>
+
+    <changeSet id="2019-08-16 15:47" author="Anton Alekseev">
+        <preConditions>
+            <not>
+                <tableExists tableName="users" schemaName="photoalbum"/>
+            </not>
+        </preConditions>
+        <createTable tableName="users" schemaName="photoalbum">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER"/>
+            </column>
+            <column name="first_name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(128)"/>
+            <column name="credentials_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="users" schemaName="photoalbum"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 15:54" author="Anton Alekseev">
+        <preConditions>
+            <not>
+                <tableExists tableName="credentials" schemaName="photoalbum"/>
+            </not>
+        </preConditions>
+        <createTable tableName="credentials" schemaName="photoalbum">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CREDENTIALS"/>
+            </column>
+            <column name="login" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(32)"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="credentials" schemaName="photoalbum"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:22" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <foreignKeyConstraintExists foreignKeyTableName="users" foreignKeyName="fk_user_credentials"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <addForeignKeyConstraint baseTableName="users" baseTableSchemaName="photoalbum" baseColumnNames="credentials_id"
+                                 constraintName="fk_user_credentials" referencedTableName="credentials"
+                                 referencedTableSchemaName="photoalbum" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="users" baseTableSchemaName="photoalbum" constraintName="fk_user_credentials"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:38" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <foreignKeyConstraintExists foreignKeyTableName="users" foreignKeyName="fk_user_credentials"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <addForeignKeyConstraint baseTableName="credentials" baseTableSchemaName="photoalbum" baseColumnNames="user_id"
+                                 constraintName="fk_credentials_user" referencedTableName="users"
+                                 referencedTableSchemaName="photoalbum" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="credentials" baseTableSchemaName="photoalbum" constraintName="fk_credentials_user"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 15:59" author="Anton Alekseev">
+        <preConditions>
+            <not>
+                <tableExists tableName="photos" schemaName="photoalbum"/>
+            </not>
+        </preConditions>
+        <createTable tableName="photos" schemaName="photoalbum">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PHOTOS"/>
+            </column>
+            <column name="name" type="VARCHAR(128)"/>
+            <column name="image" type="${blob.type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="upload_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="photos" schemaName="photoalbum"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:41" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <foreignKeyConstraintExists foreignKeyTableName="photos" foreignKeyName="fk_user_photos"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <addForeignKeyConstraint baseTableName="photos" baseTableSchemaName="photoalbum" baseColumnNames="user_id"
+                                 constraintName="fk_user_photos" referencedTableName="users"
+                                 referencedTableSchemaName="photoalbum" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="photos" baseTableSchemaName="photoalbum" constraintName="fk_user_photos"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:14" author="Anton Alekseev">
+        <preConditions>
+            <not>
+                <tableExists tableName="categories" schemaName="photoalbum"/>
+            </not>
+        </preConditions>
+        <createTable tableName="categories" schemaName="photoalbum">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CATEGORIES"/>
+            </column>
+            <column name="name" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_level" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="categories" schemaName="photoalbum"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:19" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <tableExists tableName="photos_categories" schemaName="photoalbum"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <createTable tableName="photos_categories" schemaName="photoalbum">
+            <column name="photo_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PHOTOS_CATEGORIES"/>
+            </column>
+            <column name="category_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PHOTOS_CATEGORIES"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="photos_categories" schemaName="photoalbum"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:43" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <foreignKeyConstraintExists foreignKeyTableName="photos_categories" foreignKeyName="fk_photo_category"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <addForeignKeyConstraint baseTableName="photos_categories" baseTableSchemaName="photoalbum" baseColumnNames="photo_id"
+                                 constraintName="fk_photo_category" referencedTableName="photos"
+                                 referencedTableSchemaName="photoalbum" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="photos_categories" baseTableSchemaName="photoalbum" constraintName="fk_photo_category"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2019-08-16 16:46" author="Anton Alekseev">
+<!--        <preConditions>-->
+<!--            <not>-->
+<!--                <foreignKeyConstraintExists foreignKeyTableName="photos_categories" foreignKeyName="fk_category_photo"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <addForeignKeyConstraint baseTableName="photos_categories" baseTableSchemaName="photoalbum" baseColumnNames="category_id"
+                                 constraintName="fk_category_photo" referencedTableName="categories"
+                                 referencedTableSchemaName="photoalbum" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="photos_categories" baseTableSchemaName="photoalbum" constraintName="fk_category_photo"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
